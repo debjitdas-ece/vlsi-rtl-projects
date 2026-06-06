@@ -1,3 +1,2 @@
 *.v linguist-language=Verilog
 *.sv linguist-language=SystemVerilog
-*.vh linguist-language=Verilog
