@@ -97,24 +97,9 @@ vlsi-rtl-projects/
 
 ---
 
-## 📈 Daily Push Habit
-
-One of three non-negotiables from Jun–Aug 2026:
-**Push something to GitHub every single day — even 10 lines.**
-
-This repo is the primary target for that daily commit.
-Each solved HDLBits problem, each RTL module, each testbench
-counts as a push — building a 90-day green contribution graph
-before campus placements begin in September.
-
----
-
 ## 📬 Contact
 
 **Debjit Das** · B.Tech ECE @ JGEC
 📧 debjitdas.intern@gmail.com
 🔗 [LinkedIn](https://linkedin.com/in/debjit-das-00892b3a8)
 
----
-
-## 📁 Repository Structure
