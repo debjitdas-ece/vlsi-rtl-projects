@@ -20,55 +20,98 @@ Built alongside Samsung ISWDP training at IISc Bangalore.
 | # | Project | Tools | Timeline | Status |
 |---|---------|-------|----------|--------|
 | 0 | HDLBits — All Sections | Verilog | Jun 4–11 | ✅ Complete |
-| 1 | 8-bit ALU (8 operations) | Verilog, GTKWave | Jun 11–12 | 🔄 In Progress |
-| 2 | UART Tx/Rx (Full duplex) | Verilog, iVerilog | Jun 13–16 | ⏳ Upcoming |
-| 3 | SPI Master (Mode 0 + 3) | Verilog | Jun 17+ | ⏳ Upcoming |
+| 1 | 8-bit ALU (20 operations) | Verilog, iVerilog, GTKWave | Jun 11–16 | ✅ Complete |
+| 2 | UART Tx/Rx (Full duplex) | Verilog, iVerilog | Jun 17–20 | ⏳ Upcoming |
+| 3 | SPI Master (Mode 0 + 3) | Verilog | Jun 21+ | ⏳ Upcoming |
 | 4 | FPGA PWM Controller | Verilog | Post SPI | ⏳ Upcoming |
 | 5 | OpenLANE RTL→GDSII Flow | OpenLANE, Magic, Yosys | ISWDP phase | ⏳ Upcoming |
 
 ---
-## Repo Structure 
+
+## 📁 Repo Structure
 
 vlsi-rtl-projects/
+
 │
+
 ├── 01_HDLBits/          ← All problems solved section by section ✅
+
 │   ├── getting_started/
+
 │   ├── vectors/
+
 │   ├── modules/
+
 │   ├── procedures/
+
 │   └── circuits/
+
 │
-├── 02_ALU/              ← 8-bit ALU: 8 ops + testbench + GTKWave waveform
+
+├── 02_ALU/              ← 8-bit ALU: 20 ops, self-checking TB, 67/67 tests pass ✅
+
 │   ├── alu.v
+
 │   ├── alu_tb.v
+
+│   ├── alu_tb.vcd
+
 │   └── README.md
+
 │
+
 ├── 03_UART/             ← UART Tx/Rx full duplex
+
 │   ├── uart_tx.v
+
 │   ├── uart_rx.v
+
 │   ├── uart_tb.v
+
 │   └── README.md
+
 │
+
 ├── 04_SPI/              ← SPI Master Mode 0 + Mode 3
+
 │   ├── spi_master.v
+
 │   ├── spi_tb.v
+
 │   └── README.md
+
 │
+
 ├── 05_FPGA_PWM/         ← FPGA PWM Controller
+
 │   ├── pwm_controller.v
+
 │   └── README.md
+
 │
+
 ├── 06_OpenLANE/         ← RTL→GDSII full synthesis flow
+
 │   ├── config.json
+
 │   ├── src/
+
 │   └── results/
+
 │
+
 ├── 07_ChipDev/          ← ChipDev.io interview-style RTL problems
+
 │
+
 ├── 08_SystemVerilog_TB/ ← SV testbenches (EDAPlayground)
+
 │
+
 ├── .gitattributes       ← Forces GitHub to recognize .v as Verilog
+
 └── README.md
+
 ---
 
 ## 🛠️ Tools & Environment
@@ -106,4 +149,3 @@ vlsi-rtl-projects/
 **Debjit Das** · B.Tech ECE @ JGEC
 📧 debjitdas.intern@gmail.com
 🔗 [LinkedIn](https://linkedin.com/in/debjit-das-00892b3a8)
-
