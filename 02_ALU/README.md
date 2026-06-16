@@ -76,5 +76,3 @@ RESULTS: 67 passed,  0 failed  /  67 total
 - `c_reg` internally latches the carry bit each clock, enabling correct RLC/RRC chained behavior.
 - Signed overflow detection: ADD checks same-sign inputs producing opposite-sign output; SUB checks different-sign inputs producing opposite-sign output.
 ```
-
-### Result
