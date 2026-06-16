@@ -25,6 +25,10 @@ Built alongside Samsung ISWDP training at IISc Bangalore.
 | 3 | SPI Master (Mode 0 + 3) | Verilog | Jun 17+ | ⏳ Upcoming |
 | 4 | FPGA PWM Controller | Verilog | Post SPI | ⏳ Upcoming |
 | 5 | OpenLANE RTL→GDSII Flow | OpenLANE, Magic, Yosys | ISWDP phase | ⏳ Upcoming |
+
+---
+## Repo Structure 
+
 vlsi-rtl-projects/
 │
 ├── 01_HDLBits/          ← All problems solved section by section ✅
