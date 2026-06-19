@@ -21,7 +21,7 @@ Built alongside Samsung ISWDP training at IISc Bangalore.
 |---|---------|-------|----------|--------|
 | 0 | HDLBits — All Sections | Verilog | Jun 4–11 | ✅ Complete |
 | 1 | 8-bit ALU (20 operations) | Verilog, iVerilog, GTKWave | Jun 11–16 | ✅ Complete |
-| 2 | UART Tx/Rx (16× oversample, 286/286) | Verilog, iVerilog | ✅ Complete |
+| 2 | UART Tx/Rx (16× oversample, 286/286) | Verilog, iVerilog | Jun 17–20 | ✅ Complete |
 | 3 | SPI Master (Mode 0 + 3) | Verilog | Jun 21+ | ⏳ Upcoming |
 | 4 | FPGA PWM Controller | Verilog | Post SPI | ⏳ Upcoming |
 | 5 | OpenLANE RTL→GDSII Flow | OpenLANE, Magic, Yosys | ISWDP phase | ⏳ Upcoming |
