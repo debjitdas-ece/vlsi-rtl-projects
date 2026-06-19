@@ -44,7 +44,6 @@ center sampling, making it resilient to single-sample noise glitches.
 ├── Uart_rx.v         — Receiver FSM: IDLE → START → DATA → PARITY → STOP/STOP2
 ├── Uart_tb.v         — Self-checking testbench, 286 directed + swept test cases
 ├── wave.vcd          — GTKWave dump from full testbench run
-├── uart_tb.vcd       — Alternate VCD (intermediate debug run)
 └── baud_gen.vcd      — Baud generator isolated waveform
 ```
 
