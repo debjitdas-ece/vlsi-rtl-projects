@@ -79,7 +79,7 @@ Key signals:
 
 ---
 
-### `spi_slave_bfm` — Behavioral Slave (Verification Only)
+### `spi_slave` — Behavioral Slave (Verification Only)
 
 ```
 Parameters : DW = 8 (data width)
@@ -97,7 +97,7 @@ how real SPI peripherals behave.
 
 ---
 
-### `tb_spi_master` — Self-Checking Testbench
+### `spi_tb` — Self-Checking Testbench
 
 The testbench connects master and slave in a loopback (`mosi → slave`, `miso ← slave`),
 runs a structured regression, and prints a final pass/fail count.
