@@ -22,7 +22,7 @@ Built alongside Samsung ISWDP training at IISc Bangalore.
 | 0 | HDLBits — All Sections | Verilog | Jun 4–11 | ✅ Complete |
 | 1 | 8-bit ALU (20 operations) | Verilog, iVerilog, GTKWave | Jun 11–16 | ✅ Complete |
 | 2 | UART Tx/Rx (16× oversample, 286/286) | Verilog, iVerilog | Jun 17–20 | ✅ Complete |
-| 3 | SPI Master (Mode 0 + 3) | Verilog | Jun 21+ | ⏳ Upcoming |
+| 3 | SPI Master (All 4 Modes, timing-verified) | Verilog, iVerilog | Jun 21–22 | ✅ Complete |
 | 4 | FPGA PWM Controller | Verilog | Post SPI | ⏳ Upcoming |
 | 5 | OpenLANE RTL→GDSII Flow | OpenLANE, Magic, Yosys | ISWDP phase | ⏳ Upcoming |
 
@@ -78,11 +78,15 @@ vlsi-rtl-projects/
 
 │
 
-├── 04_SPI/              ← SPI Master Mode 0 + Mode 3
+├── 04_SPI/              ← SPI Master: all 4 modes (CPOL/CPHA), slave BFM, timing-verified ✅
 
 │   ├── spi_master.v
 
+│   ├── spi_slave.v
+
 │   ├── spi_tb.v
+
+│   ├── spi_tb.vcd
 
 │   └── README.md
 
