@@ -37,6 +37,14 @@ pwm_apb_wrapper #(.P_S(P_S), .N(N), .SAFE_STATE(SAFE)) u_wrap (
 
 always #(CLK_T/2) clk = ~clk;
 
+// VCD dump for GTKWave. Depth 0 = unlimited, so this recurses through
+// u_wrap -> dut -> every submodule (prescaler, counter, dbuf, compare,
+// deadtime, trip, adc) automatically -- no need for per-instance calls.
+initial begin
+    $dumpfile("tb_apb.vcd");
+    $dumpvars(0, tb_apb);
+end
+
 integer pass_cnt = 0;
 integer fail_cnt = 0;
 
@@ -138,8 +146,6 @@ generate
     end
 endgenerate
 
-
-
 integer pwm_toggle_cnt = 0;
 reg [2*N-1:0] pwm_out_d;
 always @(posedge clk or negedge rst_n) begin
@@ -148,11 +154,6 @@ always @(posedge clk or negedge rst_n) begin
         if (pwm_out != pwm_out_d) pwm_toggle_cnt = pwm_toggle_cnt + 1;
         pwm_out_d <= pwm_out;
     end
-end
-
-initial begin
-    $dumpfile("tb_apb.vcd");
-    $dumpvars(0, tb_apb);
 end
 
 task automatic reset_dut;
