@@ -14,7 +14,8 @@ This repository tracks my complete VLSI and RTL design journey — from HDLBits 
 | 2 | UART Tx/Rx (16× oversample, 286/286) | Verilog, iVerilog | Jun 17–20 | ✅ Complete |
 | 3 | SPI Master (All 4 Modes, timing-verified) | Verilog, iVerilog | Jun 21–22 | ✅ Complete |
 | 4 | Multi-Channel PWM IP Core (APB3, dead-time, trip protection, ASIC-targeted) | Verilog, iVerilog, GTKWave | Jun 23–Jul 7 | ✅ Complete |
-| 5 | OpenLANE RTL→GDSII Flow | OpenLANE, Magic, Yosys | ISWDP phase | ⏳ Upcoming |
+| 5 | AMBA AXI4 Full System (2 master / 2 slave interconnect, round-robin arbitration, depth-4 outstanding tx) | Verilog-2001, iVerilog, GTKWave | Jul 2026 | ✅ Complete |
+| 6 | OpenLANE RTL→GDSII Flow | OpenLANE, Magic, Yosys | ISWDP phase | ⏳ Upcoming |
 
 ## 📁 Repo Structure
 ```
@@ -70,6 +71,45 @@ vlsi-rtl-projects/
 │   ├── filelist.f
 │   └── README.md
 │
+├── axi/                         ← AMBA AXI4 full system: 2 masters, 2 slaves, round-robin
+│   │                              interconnect, ID-tracked outstanding transactions (depth 4),
+│   │                              burst support. Verilog-2001 only. All tests passing ✅
+│   ├── rtl/
+│   │   ├── Master/
+│   │   │   ├── axi4_master_top.v
+│   │   │   ├── axi_master_cmd_fsm.v
+│   │   │   ├── axi_master_pending_fifo.v
+│   │   │   ├── axi_master_rd_fsm.v
+│   │   │   ├── axi_master_resp_check.v
+│   │   │   └── axi_master_wr_fsm.v
+│   │   ├── Slave/
+│   │   │   ├── axi4_slave_top.v
+│   │   │   ├── axi_addr_decode.v
+│   │   │   ├── axi_rd_fsm.v
+│   │   │   ├── axi_regmap.v
+│   │   │   ├── axi_resp_gen.v
+│   │   │   └── axi_wstrb_merge.v
+│   │   ├── common/
+│   │   │   ├── axi_burst_calc.v
+│   │   │   ├── axi_id_tracker.v
+│   │   │   └── axi_pkg.v
+│   │   ├── interconnect/
+│   │   │   ├── axi4_interconnect_top.v
+│   │   │   ├── axi_ic_addr_map.v
+│   │   │   ├── axi_ic_arbiter.v
+│   │   │   ├── axi_ic_mux_rd.v
+│   │   │   └── axi_ic_mux_wr.v
+│   │   ├── axi4_system.f
+│   │   └── axi4_system_top.v
+│   ├── tb/
+│   │   ├── tb_axi4_master_top.v
+│   │   ├── tb_axi4_slave_top.v
+│   │   ├── tb_axi4_system_top.v
+│   │   └── tb_axi_common.v
+│   ├── sim/
+│   │   └── run.sh
+│   └── README.md
+│
 ├── 06_OpenLANE/                 ← RTL→GDSII full synthesis flow
 │   ├── config.json
 │   ├── src/
@@ -80,6 +120,7 @@ vlsi-rtl-projects/
 ├── 08_SystemVerilog_TB/         ← SV testbenches (EDAPlayground)
 │
 ├── .gitattributes               ← Forces GitHub to recognize .v as Verilog
+├── .gitignore                   ← Excludes sim build artifacts (*.out, *.vcd, *.vvp, *.o)
 └── README.md
 ```
 
