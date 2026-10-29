@@ -115,8 +115,6 @@ vlsi-rtl-projects/
 │   ├── src/
 │   └── results/
 │
-├── 07_ChipDev/                  ← ChipDev.io interview-style RTL problems
-│
 ├── 08_SystemVerilog_TB/         ← SV testbenches (EDAPlayground)
 │
 ├── .gitattributes               ← Forces GitHub to recognize .v as Verilog
@@ -143,9 +141,9 @@ vlsi-rtl-projects/
 | Certification | Date | Status |
 |---|---|---|
 | HDLBits — 100% All Sections | Jun 11, 2026 | ✅ Complete |
-| Samsung ISWDP @ IISc — Level 1 | Jul 2026 | ⏳ Upcoming |
-| Samsung ISWDP @ IISc — Level 2 | Aug 2026 | ⏳ Upcoming |
-| Samsung ISWDP @ IISc — Level 3 Advance | Aug 15–23, 2026 | ⏳ Upcoming |
+| Samsung ISWDP @ IISc — Level 1 | Jul 2026 | ✅ Complete |
+| Samsung ISWDP @ IISc — Level 2 | Aug 2026 | ✅ Complete |
+| Samsung ISWDP @ IISc — Level 3 Advance | Aug 15–23, 2026 | ✅ Complete |
 | NPTEL | 2026 | 🔄 Ongoing |
 
 ## 📬 Contact
