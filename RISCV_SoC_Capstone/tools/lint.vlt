@@ -1,0 +1,19 @@
+// Lint waivers used by `make lint` (anything NOT listed here fails the build).
+`verilator_config
+// third-party core (PicoRV32): not ours to restyle
+lint_off -rule BLKSEQ     -file "*/picorv32.v"
+lint_off -rule GENUNNAMED -file "*/picorv32.v"
+lint_off -rule WIDTH      -file "*/picorv32.v"
+// PicoRV32 look-ahead/trace/IRQ-out ports are intentionally left unconnected in the SoC tops
+lint_off -rule PINMISSING -file "*/top.v"
+lint_off -rule PINMISSING -file "*/top_plus.v"
+// optional ports (reg_re, reg_we, ...) intentionally unconnected on ROM/SRAM/GPIO/PWM
+lint_off -rule PINCONNECTEMPTY
+// the reset synchroniser output is deliberately used as the async reset of every flop
+lint_off -rule SYNCASYNCNET -file "*/top_plus.v"
+lint_off -rule SYNCASYNCNET -file "*/top.v"
+// style rules we do not enforce
+lint_off -rule DECLFILENAME
+lint_off -rule UNUSEDSIGNAL
+lint_off -rule UNUSEDPARAM
+lint_off -rule TIMESCALEMOD

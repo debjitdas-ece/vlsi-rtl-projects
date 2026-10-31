@@ -1,0 +1,15 @@
+Hello from PicoRV32 SoC!
+Hello from PicoRV32 SoC!
+Hello from PicoRV32 SoC!
+Hello from PicoRV32 SoC!
+Hello from PicoRV32 SoC!
+Hello from PicoRV32 SoC!
+Hello from PicoRV32 SoC!
+Hello from PicoRV32 SoC!
+Hello from PicoRV32 SoC!
+Hello from PicoRV32 SoC!
+[TB] 10 greetings received, sending PING
+PING
+[TB] echo OK
+[TB] AXI4-Lite protocol violations: 0
+TEST PASSED

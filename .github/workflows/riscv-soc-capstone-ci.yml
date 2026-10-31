@@ -1,0 +1,23 @@
+# Lives in the REPO ROOT (.github/workflows/) because GitHub only runs workflows from there.
+# It runs inside the RISCV_SoC_Capstone/ subfolder and only when that folder changes.
+name: riscv-soc-capstone-ci
+on:
+  push:
+    paths: ["RISCV_SoC_Capstone/**", ".github/workflows/riscv-soc-capstone-ci.yml"]
+  pull_request:
+    paths: ["RISCV_SoC_Capstone/**"]
+defaults:
+  run:
+    working-directory: RISCV_SoC_Capstone
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain
+        run: sudo apt-get update && sudo apt-get install -y verilator iverilog gcc-riscv64-unknown-elf yosys python3-matplotlib zlib1g-dev
+      - run: make lint
+      - run: make test
+      - run: make test-asic-rom
+      - run: make test-iverilog
+      - run: SRAM_WORDS=64 make synth

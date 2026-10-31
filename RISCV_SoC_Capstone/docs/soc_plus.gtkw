@@ -1,0 +1,38 @@
+[*] GTKWave save file for SoC-plus (open with: make wave)
+[dumpfile] "build/tb_top.fst"
+@200
+-CPU native bus
+@28
+tb_top.u_dut.u_cpu.mem_valid
+tb_top.u_dut.u_cpu.mem_ready
+@22
+tb_top.u_dut.u_cpu.mem_addr[31:0]
+tb_top.u_dut.u_cpu.mem_wdata[31:0]
+@200
+-AXI-Lite bridge
+@22
+tb_top.u_dut.u_br.b_state[2:0]
+@28
+tb_top.u_dut.u_br.m_awvalid
+tb_top.u_dut.u_br.m_awready
+tb_top.u_dut.u_br.m_bvalid
+tb_top.u_dut.u_br.m_arvalid
+tb_top.u_dut.u_br.m_rvalid
+@200
+-Interconnect select
+@22
+tb_top.u_dut.u_ic.wr_sel[4:0]
+tb_top.u_dut.u_ic.rd_sel[4:0]
+@200
+-UART
+@28
+tb_top.uart_tx_pin
+tb_top.uart_rx_pin
+tb_top.u_dut.u_uart.buf_valid
+@200
+-PWM / protection
+@28
+tb_top.fault_in
+tb_top.pwm_h[2:0]
+tb_top.pwm_l[2:0]
+tb_top.adc_trig

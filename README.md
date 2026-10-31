@@ -16,6 +16,7 @@ This repository tracks my complete VLSI and RTL design journey — from HDLBits 
 | 4 | Multi-Channel PWM IP Core (APB3, dead-time, trip protection, ASIC-targeted) | Verilog, iVerilog, GTKWave | Jun 23–Jul 7 | ✅ Complete |
 | 5 | AMBA AXI4 Full System (2 master / 2 slave interconnect, round-robin arbitration, depth-4 outstanding tx) | Verilog-2001, iVerilog, GTKWave | Jul 2026 | ✅ Complete |
 | 6 | OpenLANE RTL→GDSII Flow | OpenLANE, Magic, Yosys | ISWDP phase | ⏳ Upcoming |
+| 7 | RISC-V SoC Capstone (PicoRV32, AXI4-Lite bus, PWM IP, RTL→GDS with LibreLane/sky130) | Verilog, Verilator, iVerilog, Yosys, LibreLane | Oct 2026 | ✅ Sim complete · ⚠️ Layout flow run, open items documented |
 
 ## 📁 Repo Structure
 ```
@@ -110,6 +111,12 @@ vlsi-rtl-projects/
 │   │   └── run.sh
 │   └── README.md
 │
+├── RISCV_SoC_Capstone/          ← PicoRV32 SoC: AXI4-Lite bus + DECERR/SLVERR decoder, UART, PWM + GPIO,
+│   │                              bus testbench + AXI4-Lite protocol checker, LibreLane sky130 run (metrics in docs/)
+│   ├── rtl/  tb/  fw/  tools/  openlane/
+│   ├── docs/  (PPA.md, coverage.md, physical/)
+│   └── README.md
+│
 ├── 06_OpenLANE/                 ← RTL→GDSII full synthesis flow
 │   ├── config.json
 │   ├── src/
@@ -131,6 +138,8 @@ vlsi-rtl-projects/
 | GTKWave | Waveform viewer for simulation output |
 | EDAPlayground | Online SystemVerilog simulation |
 | OpenLANE | Open-source RTL→GDSII flow |
+| LibreLane | Open-source RTL→GDSII flow (used for the RISC-V SoC) |
+| Verilator | Fast RTL simulation, lint and coverage |
 | Magic VLSI | Layout viewer |
 | Yosys | Logic synthesis |
 | HDLBits | Structured Verilog problem set |

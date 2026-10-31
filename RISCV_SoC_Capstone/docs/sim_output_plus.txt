@@ -1,0 +1,30 @@
+EV-SoC PicoRV32/AXI-Lite v1.0
+READY
+TEL,1,182820,8,6,4,0,0
+TEL,2,287004,16,12,8,0,0
+TEL,3,
+[TB] injecting fault_in
+399870,24,18,12,0,0
+TEL,4,517077,32,24,16,1,1
+TEL,5,634284,40,30,20,1,1
+TEL,6,
+[TB] releasing fault_in
+751491,48,36,24,1,1
+CLR
+TEL,7,890403,56,42,28,0,0
+TEL,8,1007610,64,48,32,0,0
+TEL,9,1129158,72,54,36,0,0
+TEL,10,1255047,80,60,40,0,0
+TEL,11,1380936,88,66,44,0,0
+TEL,12,1506825,96,72,48,0,0
+> st
+ST en=1 trp=0 lat=0 d=96,72,48 busErr=0 cyc=1823432
+> d 1 75
+OK
+> g a
+OK
+> x
+ERR
+[TB] shoot-through events: 0, ADC triggers: 2026
+[TB] AXI4-Lite protocol violations: 0
+TEST PASSED
