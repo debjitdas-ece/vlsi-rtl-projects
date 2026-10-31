@@ -1,5 +1,8 @@
 # RISC-V SoC capstone - top-level Makefile
 # Primary flow: Verilator (fast).  Fallback flow: Icarus Verilog (make test-iverilog) - works with only iverilog+gtkwave+riscv gcc.
+# a fresh git checkout has no build/ (it is gitignored); create it up front
+$(shell mkdir -p build)
+
 RTL_COMMON = rtl/picorv32.v rtl/axi_bridge.v rtl/axi_decoder.v rtl/axi_lite_interconnect.v rtl/axil_reg_if.v \
              rtl/rom.v rtl/sram.v rtl/uart_axi.v rtl/uart_tx.v rtl/uart_rx.v rtl/sync2.v rtl/rst_sync.v
 RTL_PWM    = $(wildcard rtl/pwm/*.v) rtl/pwm_axi.v rtl/gpio_axi.v
