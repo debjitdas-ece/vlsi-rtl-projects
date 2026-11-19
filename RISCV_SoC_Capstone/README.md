@@ -39,8 +39,18 @@ Windows match the **real** memory sizes. Out-of-range accesses return DECERR (no
 
 # Status
 
-## Done and verified
+## Results at a glance
+RTL-to-GDS completed with LibreLane 3.0.17 on sky130A (hd) at **16 ns (62.5 MHz)** for both variants; the course target was 20 ns. Full tables, run history and the original-requirement comparison are in [`docs/PPA.md`](docs/PPA.md); raw evidence is in `docs/physical/`.
 
+| 16 ns | Plus (`top_plus`) | Base (`top`) |
+|---|---|---|
+| Setup / hold slack | +1.74 / +0.36 ns | +1.62 / +0.36 ns |
+| DRC (Magic + KLayout) / LVS / antenna / router DRC | 0 / clean / 0 / 0 | 0 / clean / 0 / 0 |
+| Slew / cap violations: typical and fast corners | 0 / 0 | 0 / 0 |
+| Slew / cap violations: **slow corner (100 C, 1.6 V)** | **1571 / 171** | **1006 / 107** |
+| Std-cell area / die | 338,493 um^2 / 678,181 um^2 | 299,820 um^2 / 594,651 um^2 |
+
+## Done and verified
 | Item | Result |
 |---|---|
 | Address-aliasing bug in the decoder | Fixed (windows = real sizes, DECERR / SLVERR) |
@@ -49,27 +59,19 @@ Windows match the **real** memory sizes. Out-of-range accesses return DECERR (no
 | `tb/axil_checker.v` AXI4-Lite protocol checker | On CPU bus, ROM port, SRAM port: 0 violations on real firmware traffic; fires when an illegal EXOKAY is injected |
 | Full SoC, base + plus | Pass (Verilator and Icarus). 0 shoot-through events, 2026 ADC triggers |
 | ASIC-ROM test (case-ROM, 256 B SRAM) | Pass |
-| `make lint` | Clean. Waivers (third-party PicoRV32, intentional unconnected pins) are in `tools/lint.vlt` |
+| `make lint` | Clean; waivers in `tools/lint.vlt` |
 | Coverage (`make cov`, full SoC-plus run) | Block 94.0 %, branch 74.5 %, toggle 57.7 % (PicoRV32 excluded) |
-| `pwm_axi` shared loop variable (32 Yosys "conflicting drivers" warnings in run 1) | Fixed; confirmed in `final18` (0 warnings) |
-| Yosys generic synth, 256 B SRAM | No latches. base ~14.1k cells / 3.9k flops, plus ~17.0k cells / 4.2k flops (exact numbers vary with Yosys version) |
-| Firmware size | base 164 B, plus 1804 B of the 4 KB ROM |
-| LibreLane configs + SDC | Ported to LibreLane 3.0.17 key names (all keys checked against the 3.0.17 variable list) |
-| Staged run folder (`tools/openlane_prep.sh`) | Synthesizes cleanly in Yosys (17.0k / 14.1k cells) |
+| `pwm_axi` shared loop variable | Fixed (32 Yosys "conflicting drivers" warnings -> 0) |
+| Waveforms | `make wave` (Verilator) and `make wave-iv` (Icarus, `+wave_us=N` window) tested |
+| CI | Green on a clean GitHub checkout |
+| Physical flow, plus and base | Complete; sign-off checks above; GDS in the GitHub Release `riscv-soc-16ns` |
 
-## Not done / open issues
-
-| Item | Why / what it means |
-|---|---|
-| **Physical flow (plus, 18 ns): complete but NOT fully clean** | `final18`: 80/80 stages, setup +2.21 ns / hold +0.37 ns, Magic + KLayout DRC 0, LVS clean, antenna 0. **Open:** 1 router DRC marker (probably false, unverified), and max slew / max cap violations (3661 / 479) at the slow corners. See `docs/PPA.md` |
-| Full-flow clock sweep at 16 ns or below, base variant run | Not run. The 16/14/12 ns rows in `docs/PPA.md` are re-timed from an older layout |
-| `make wave-iv` | Not tested (the dump of the full run can be large) |
-| riscv-arch-test, OpenRAM SRAM macro | Not started (optional extras) |
-| GitHub repo | Not created yet: that is your step 4 and step 9 |
-
-Only report physical-flow results that appear in `docs/PPA.md`, and say plainly which checks still fail.
-
----
+## Known limitations (stated, not hidden)
+* **Slow-corner slew/cap:** residual violations only at 100 C / 1.6 V (most within 25 % of the limit). The typical and fast corners are clean.
+* **Clock skew:** about 391 ps (plus) and 332 ps (base) at the typical corner against the original 150 ps target. LibreLane 3.0.17 has no skew target; three CTS settings were tried and none came close.
+* **Floorplan:** the optimised results use a relative floorplan (smaller than the original fixed 1000 x 1000 um die). The original-spec floorplan was also run (`fix16D`): clean at sign-off, but 24 % more cell area and 0.9 ns less slack.
+* **SDC:** asynchronous inputs are false-pathed (they go through 2-FF synchronisers); the original SDC constrained them synchronously.
+* **Not done:** gate-level simulation, equivalence check (skipped by the flow default), riscv-arch-test, OpenRAM macro.
 
 # Reproduce
 
@@ -86,15 +88,15 @@ SRAM_WORDS=64 make synth    # Yosys sanity check, expect "latches: none"
 make cov                    # writes docs/coverage.md
 ```
 
-**2. Physical flow (LibreLane 3.0.17 + sky130A, about 2.5 h)**
+**2. Physical flow (LibreLane 3.0.17 + sky130A, about 1 h per run)**
 Install LibreLane following https://librelane.readthedocs.io (Nix route), then:
 ```bash
 bash tools/openlane_prep.sh plus ~/librelane_runs      # firmware at 256 B SRAM, case-ROM, copies RTL + config
 cd ~/librelane && nix-shell                            # LibreLane shell
 cd ~/librelane_runs/riscv_soc_plus
-librelane --run-tag final18 config.json
+librelane --run-tag fix16C config.json
 ```
-Results land in `runs/final18/final/metrics.json`. The committed evidence of my run is in `docs/physical/` (metrics, LVS report, Magic DRC report, router DRC marker, the exact config). The GDS is attached to the GitHub Release, not committed.
+Results land in `runs/fix16C/final/metrics.json`. The committed evidence of my run is in `docs/physical/` (metrics, LVS report, Magic DRC report, router DRC marker, the exact config). The GDS is attached to the GitHub Release, not committed.
 
 ## LibreLane config: OpenLane-1 -> LibreLane renames used here
 `PL_TARGET_DENSITY` -> `PL_TARGET_DENSITY_PCT` - `FP_PIN_ORDER_CFG` -> `IO_PIN_ORDER_CFG` - `BASE_SDC_FILE` -> `PNR_SDC_FILE` + `SIGNOFF_SDC_FILE` - `CTS_CLK_BUFFER_LIST` -> `CTS_CLK_BUFFERS` - `GLB_RESIZER_*` -> `GRT_RESIZER_*` - `ROUTING_CORES` -> `DRT_THREADS` - `IO_PCT` -> `IO_DELAY_CONSTRAINT` - `GRT_REPAIR_ANTENNAS` -> `RUN_ANTENNA_REPAIR` - `FP_PDN_*PITCH/OFFSET` -> `PDN_*PITCH/OFFSET` - `PL_RESIZER_MAX_*` -> `DESIGN_REPAIR_MAX_*`.
@@ -111,7 +113,7 @@ The SDC treats `reset uart_rx fault_in gpio_in[*]` as asynchronous (`set_false_p
 | `make lint` | Verilator `-Wall`; fails on any non-waived warning |
 | `make cov` | Coverage run, writes `docs/coverage.md` |
 | `make synth` | Yosys sanity check (`SRAM_WORDS=64`) |
-| `make wave` / `wave-iv` | Trace + GTKWave (`wave-iv` untested) |
+| `make wave` / `wave-iv` | Trace + GTKWave (`wave-iv` tested) |
 | `make dash` | Plot UART telemetry to `docs/telemetry.png` |
 | `python3 tools/render_layout.py <gds> <png> [cx cy half_um]` | Zoomed layout render, lower layers only (the flow's own full-die render is a solid block because the top metal hides everything) |
 

@@ -103,7 +103,14 @@ module tb_top;
   end endtask
 
   // ---------------- optional waveform ----------------
-  initial if ($test$plusargs("wave")) begin $dumpfile("build/tb_top.fst"); $dumpvars(0, tb_top); end
+  // +wave            dump the first 3000 us (boot + UART greeting) to build/tb_top.fst
+  // +wave +wave_us=N dump the first N us instead (the full 36 ms run produces a very large file)
+  integer wave_us;
+  initial if ($test$plusargs("wave")) begin
+    if (!$value$plusargs("wave_us=%d", wave_us)) wave_us = 3000;
+    $dumpfile("build/tb_top.fst"); $dumpvars(0, tb_top);
+    #(wave_us * 1000); $dumpoff;
+  end
   // CPU trap = firmware crash
   always @(posedge clk) if (!reset && u_dut.trap_w) begin $display("\n[TB] CPU TRAP"); $display("TEST FAILED"); $fatal(1); end
 
