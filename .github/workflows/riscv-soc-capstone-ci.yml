@@ -3,6 +3,7 @@
 name: riscv-soc-capstone-ci
 on:
   push:
+    branches: [main]
     paths: ["RISCV_SoC_Capstone/**", ".github/workflows/riscv-soc-capstone-ci.yml"]
   pull_request:
     paths: ["RISCV_SoC_Capstone/**"]
