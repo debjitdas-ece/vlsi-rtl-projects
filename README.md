@@ -35,23 +35,20 @@ vlsi-rtl-projects/
 ├── 02_ALU/                     ← 8-bit ALU: 20 ops, self-checking TB, 67/67 tests pass ✅
 │   ├── alu.v
 │   ├── alu_tb.v
-│   ├── alu_tb.vcd
+│   ├── Makefile
 │   └── README.md
 │
-├── 03_UART/                    ← UART Tx/Rx full duplex: 16× oversample, self-checking TB, 286/286 tests pass ✅
-│   ├── uart_tx.v
-│   ├── uart_rx.v
-│   ├── uart_tb.v
-│   ├── Baud_rate.v
-│   ├── wave.vcd
-│   ├── baud_gen.vcd
+├── 03_UART/                    ← UART Tx/Rx full duplex: 16× oversample, self-checking TB, 286/286 tests pass; FIFO core + register wrapper, 44 + 11 checks ✅
+│   ├── Baud_rate.v  Uart_tx.v  Uart_rx.v  Uart_tb.v         ← Tx/Rx + 286-check TB
+│   ├── fifo_sync.v  uart_core.v  uart_top.v                  ← FIFO core + register wrapper
+│   ├── tb_uart_core.v  tb_uart_top.v                         ← 44 + 11 checks
+│   ├── Makefile
 │   └── README.md
 │
-├── 04_SPI/                     ← SPI Master: all 4 modes (CPOL/CPHA), slave BFM, timing-verified ✅
-│   ├── spi_master.v
-│   ├── spi_slave.v
-│   ├── spi_tb.v
-│   ├── spi_tb.vcd
+├── 04_SPI/                     ← SPI Master: all 4 modes (CPOL/CPHA), slave BFM, timing-verified + burst / multi-SS / variable-width core ✅
+│   ├── spi_master.v  spi_slave.v  spi_tb.v                   ← frozen single-word master, 531 checks
+│   ├── spi_master_core.v  spi_slave_bfm_burst.v  tb_spi_master_core.v   ← burst, multi-SS, variable width, 39 checks
+│   ├── Makefile
 │   └── README.md
 │
 ├── PWM_Controller/              ← Multi-channel PWM IP: APB3 register interface, double-buffered

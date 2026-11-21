@@ -15,6 +15,7 @@ verified with Icarus Verilog + GTKWave (no physical FPGA target required).
 - [Configurability](#configurability)
 - [Architecture & Key Design Decisions](#architecture--key-design-decisions)
 - [Verification — 286 / 286 Passing](#verification--286--286-passing)
+- [Results — All Testbenches](#results--all-testbenches)
 - [Bug Log — Simulation-Driven Debugging](#bug-log--simulation-driven-debugging)
 - [How to Run](#how-to-run)
 - [Waveform Guide](#waveform-guide)
@@ -42,9 +43,13 @@ center sampling, making it resilient to single-sample noise glitches.
 ├── Baud_rate.v       — Baud generator (rx_tick: 16× oversample, tx_tick: 1× baud)
 ├── Uart_tx.v         — Transmitter FSM: IDLE → START → DATA → PARITY → STOP
 ├── Uart_rx.v         — Receiver FSM: IDLE → START → DATA → PARITY → STOP/STOP2
-├── Uart_tb.v         — Self-checking testbench, 286 directed + swept test cases
-├── wave.vcd          — GTKWave dump from full testbench run
-└── baud_gen.vcd      — Baud generator isolated waveform
+├── Uart_tb.v         — Self-checking Tx/Rx testbench, 286 directed + swept test cases
+├── fifo_sync.v       — Synchronous FIFO
+├── uart_core.v       — Tx/Rx + FIFOs + flow control (`rts_n`) + overrun flag
+├── uart_top.v        — Register-mapped wrapper (CTRL / STATUS / data)
+├── tb_uart_core.v    — Core testbench: FIFO order, full/overflow, RTS, overrun, parity (44 checks)
+├── tb_uart_top.v     — Register-interface testbench (11 checks)
+└── Makefile          — `make test` runs all three testbenches (this is what CI runs)
 ```
 
 ---
@@ -216,6 +221,18 @@ manipulation — making the error-injection tests as realistic as possible.
 
 ---
 
+## Results — All Testbenches
+
+| Testbench | Checks | Result |
+|---|---|---|
+| `Uart_tb` (Tx/Rx, 16× oversample) | 286 | 286 pass, 0 fail |
+| `tb_uart_core` | 44 | 44 pass, 0 fail |
+| `tb_uart_top` | 11 | 11 pass, 0 fail |
+
+Reproduce: `make -C 03_UART test`
+
+---
+
 ## Bug Log — Simulation-Driven Debugging
 
 All bugs were found by running the simulator, observing actual waveform values, and
@@ -235,6 +252,10 @@ tracing causality — not by inspection.
 Requires: [Icarus Verilog](https://bleyer.org/icarus/) (`iverilog` / `vvp`) and optionally [GTKWave](https://gtkwave.sourceforge.net/).
 
 ```bash
+# All three testbenches (what CI runs)
+make test
+
+# Tx/Rx testbench only
 # Compile
 iverilog -o sim_uart Baud_rate.v Uart_tx.v Uart_rx.v Uart_tb.v
 
@@ -255,7 +276,7 @@ Expected final line from the simulator:
 
 ## Waveform Guide
 
-Load `wave.vcd` in GTKWave. Suggested signal groups:
+Run the simulation to generate `wave.vcd` (git-ignored, not stored in the repo), then load it in GTKWave. Suggested signal groups:
 
 **Clocks & Ticks**
 ```
@@ -301,13 +322,3 @@ production UART controller would require them.
 - **Layer 5 — `uart_top.v`:** Memory-mapped register file wrapping all four modules
   behind a standardized bus interface (AXI4-Lite or simple APB)
 - **Project #3 — SPI Master** (Mode 0 + Mode 3)
-
-## Results
-
-| Testbench | Checks | Result |
-|---|---|---|
-| `Uart_tb` (Tx/Rx, 16× oversample) | 286 | 286 pass, 0 fail |
-| `tb_uart_core` | 44 | 44 pass, 0 fail |
-| `tb_uart_top` | 11 | 11 pass, 0 fail |
-
-Reproduce: `make -C 03_UART test`
