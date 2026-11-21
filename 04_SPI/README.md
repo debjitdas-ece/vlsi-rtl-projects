@@ -296,3 +296,16 @@ edges with MOSI/MISO toggling → HOLD gap → SS release → `done` pulse.
   configurable frequency and duty cycle, targeting FPGA implementation
 - **Project #5 — AXI4-Lite Slave:** Bus interface wrapper for the UART and
   SPI cores developed in this portfolio
+
+## Results
+
+| Testbench | Checks | Result |
+|---|---|---|
+| `spi_tb` (frozen `spi_master`) | 531 | 531 pass, 0 fail |
+| `tb_spi_master_core` (burst, multi-SS, variable width) | 39 | 39 pass, 0 fail |
+
+Reproduce: `make -C 04_SPI test`
+
+### Bug found during verification
+
+A strict full-width `rx_data` comparison in the burst test exposed stale upper bits: `rx_shift` was not cleared after a word was captured, so word 2 of a burst read back as `0x55aa` instead of `0xaa`. The fix clears `rx_shift` at the final sample of each word. The testbench's differential check against the frozen `spi_master` confirms single-word behaviour is unchanged.

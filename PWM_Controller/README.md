@@ -122,3 +122,12 @@ RTL complete for all listed modules; both testbenches pass with 0 failures on Ic
 ## License
 
 MIT (or update to match the rest of the `vlsi-rtl-projects` repo's license).
+
+## Results
+
+| Testbench | Checks | Result |
+|---|---|---|
+| `tb_pwm_top` | 34,156 | 34,156 pass, 0 fail |
+| `tb_apb` | 8,038 | 8,038 pass, 0 fail |
+
+Reproduce: `make -C PWM_Controller test`

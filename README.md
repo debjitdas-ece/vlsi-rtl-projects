@@ -5,7 +5,7 @@
 
 ECE @ JGEC · Samsung ISWDP @ IISc (3 Levels)
 Verilog · SystemVerilog · GTKWave · iVerilog · OpenLANE · EDAPlayground
-Daily GitHub push habit maintained — Jun to Aug 2026
+Daily GitHub push habit maintained — since Jun 2026
 
 ## 🧠 About This Repo
 This repository tracks my complete VLSI and RTL design journey — from HDLBits problem solving to real RTL project builds, SystemVerilog testbenches, OpenLANE synthesis, and interview-focused ChipDev problems. Built alongside Samsung ISWDP training at IISc Bangalore.
@@ -57,7 +57,7 @@ vlsi-rtl-projects/
 │
 ├── PWM_Controller/              ← Multi-channel PWM IP: APB3 register interface, double-buffered
 │   │                              updates, dead-time insertion, trip/fault protection, multi-instance
-│   │                              sync, dual ADC trigger generation. Self-checking TBs, 58/58 checks pass ✅
+│   │                              sync, dual ADC trigger generation. Self-checking TBs, 34,156 (top) + 8,038 (APB) checks pass ✅
 │   ├── rtl/
 │   │   ├── pwm_prescaler.v
 │   │   ├── pwm_updown_counter.v
