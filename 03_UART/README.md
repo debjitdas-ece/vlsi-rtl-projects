@@ -301,3 +301,12 @@ production UART controller would require them.
 - **Layer 5 — `uart_top.v`:** Memory-mapped register file wrapping all four modules
   behind a standardized bus interface (AXI4-Lite or simple APB)
 - **Project #3 — SPI Master** (Mode 0 + Mode 3)
+
+## Results
+
+| Testbench | Checks | Result |
+|---|---|---|
+| `tb_uart_core` | 44 | 44 pass, 0 fail |
+| `tb_uart_top` | 11 | 11 pass, 0 fail |
+
+Reproduce: `make -C 03_UART test`

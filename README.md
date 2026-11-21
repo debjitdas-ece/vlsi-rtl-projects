@@ -1,7 +1,11 @@
 # VLSI & RTL Design Portfolio — Debjit Das
+
+[![regression](https://github.com/debjitdas-ece/vlsi-rtl-projects/actions/workflows/regression.yml/badge.svg)](https://github.com/debjitdas-ece/vlsi-rtl-projects/actions/workflows/regression.yml)
+[![capstone](https://github.com/debjitdas-ece/vlsi-rtl-projects/actions/workflows/riscv-soc-capstone-ci.yml/badge.svg)](https://github.com/debjitdas-ece/vlsi-rtl-projects/actions/workflows/riscv-soc-capstone-ci.yml)
+
 ECE @ JGEC · Samsung ISWDP @ IISc (3 Levels)
 Verilog · SystemVerilog · GTKWave · iVerilog · OpenLANE · EDAPlayground
-Daily GitHub push habit maintained — Jun to Aug 2026
+Daily GitHub push habit maintained — since Jun 2026
 
 ## 🧠 About This Repo
 This repository tracks my complete VLSI and RTL design journey — from HDLBits problem solving to real RTL project builds, SystemVerilog testbenches, OpenLANE synthesis, and interview-focused ChipDev problems. Built alongside Samsung ISWDP training at IISc Bangalore.
@@ -12,11 +16,10 @@ This repository tracks my complete VLSI and RTL design journey — from HDLBits 
 | 0 | HDLBits — All Sections | Verilog | Jun 4–11 | ✅ Complete |
 | 1 | 8-bit ALU (20 operations) | Verilog, iVerilog, GTKWave | Jun 11–16 | ✅ Complete |
 | 2 | UART Tx/Rx (16× oversample, 286/286) | Verilog, iVerilog | Jun 17–20 | ✅ Complete |
-| 3 | SPI Master (All 4 Modes, timing-verified) | Verilog, iVerilog | Jun 21–22 | ✅ Complete |
+| 3 | SPI Master (all 4 modes, 531/531) + burst, multi-SS, variable-width core (39/39) | Verilog, iVerilog | Jun 21–22 | ✅ Complete |
 | 4 | Multi-Channel PWM IP Core (APB3, dead-time, trip protection, ASIC-targeted) | Verilog, iVerilog, GTKWave | Jun 23–Jul 7 | ✅ Complete |
 | 5 | AMBA AXI4 Full System (2 master / 2 slave interconnect, round-robin arbitration, depth-4 outstanding tx) | Verilog-2001, iVerilog, GTKWave | Jul 2026 | ✅ Complete |
-| 6 | OpenLANE RTL→GDSII Flow | OpenLANE, Magic, Yosys | ISWDP phase | ⏳ Upcoming |
-| 7 | RISC-V SoC Capstone (PicoRV32, AXI4-Lite bus, PWM IP, RTL→GDS with LibreLane/sky130) | Verilog, Verilator, iVerilog, Yosys, LibreLane | Oct 2026 | ✅ Simulation + RTL→GDS flow complete (16 ns); limitations documented |
+| 6 | RISC-V SoC Capstone (PicoRV32, AXI4-Lite bus, PWM IP, RTL→GDS with LibreLane/sky130) | Verilog, Verilator, iVerilog, Yosys, LibreLane | Oct 2026 | ✅ Simulation + RTL→GDS flow complete (16 ns); limitations documented |
 
 ## 📁 Repo Structure
 ```
@@ -53,7 +56,7 @@ vlsi-rtl-projects/
 │
 ├── PWM_Controller/              ← Multi-channel PWM IP: APB3 register interface, double-buffered
 │   │                              updates, dead-time insertion, trip/fault protection, multi-instance
-│   │                              sync, dual ADC trigger generation. Self-checking TBs, 58/58 checks pass ✅
+│   │                              sync, dual ADC trigger generation. Self-checking TBs, 34,156 (top) + 8,038 (APB) checks pass ✅
 │   ├── rtl/
 │   │   ├── pwm_prescaler.v
 │   │   ├── pwm_updown_counter.v
@@ -116,13 +119,6 @@ vlsi-rtl-projects/
 │   ├── rtl/  tb/  fw/  tools/  openlane/
 │   ├── docs/  (PPA.md, coverage.md, physical/)
 │   └── README.md
-│
-├── 06_OpenLANE/                 ← RTL→GDSII full synthesis flow
-│   ├── config.json
-│   ├── src/
-│   └── results/
-│
-├── 08_SystemVerilog_TB/         ← SV testbenches (EDAPlayground)
 │
 ├── .gitattributes               ← Forces GitHub to recognize .v as Verilog
 ├── .gitignore                   ← Excludes sim build artifacts (*.out, *.vcd, *.vvp, *.o)

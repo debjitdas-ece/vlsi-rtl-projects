@@ -2,3 +2,12 @@
 *.vcd
 *.vvp
 *.o
+*.vcd.gz
+*.fst
+*.wlf
+obj_dir/
+xsim.dir/
+.Xil/
+*.jou
+*.pb
+sim*.log

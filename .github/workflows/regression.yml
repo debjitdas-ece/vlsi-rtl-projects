@@ -1,0 +1,16 @@
+name: regression
+on:
+  push:
+    branches: [main]
+    paths: ["02_ALU/**", "03_UART/**", "04_SPI/**", "PWM_Controller/**", "axi/**", "scripts/**", ".github/workflows/regression.yml"]
+  pull_request:
+    paths: ["02_ALU/**", "03_UART/**", "04_SPI/**", "PWM_Controller/**", "axi/**", "scripts/**", ".github/workflows/regression.yml"]
+jobs:
+  sim:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tools
+        run: sudo apt-get update && sudo apt-get install -y iverilog make
+      - name: Run regressions
+        run: ./scripts/regress.sh
