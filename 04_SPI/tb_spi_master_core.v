@@ -36,7 +36,7 @@ module tb_spi_master_core;
     integer pass_cnt = 0, fail_cnt = 0;
     integer i, m, tw;
 
-    task pf(input ok, input [8*40-1:0] lbl);
+    task pf(input ok, input [8*64-1:0] lbl);
         begin
             if (ok) begin
                 $display("PASS [%0s]", lbl); pass_cnt = pass_cnt + 1;
