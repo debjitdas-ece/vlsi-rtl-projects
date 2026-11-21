@@ -306,6 +306,7 @@ production UART controller would require them.
 
 | Testbench | Checks | Result |
 |---|---|---|
+| `Uart_tb` (Tx/Rx, 16× oversample) | 286 | 286 pass, 0 fail |
 | `tb_uart_core` | 44 | 44 pass, 0 fail |
 | `tb_uart_top` | 11 | 11 pass, 0 fail |
 
