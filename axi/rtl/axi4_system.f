@@ -14,21 +14,21 @@ rtl/common/axi_burst_calc.v
 rtl/common/axi_id_tracker.v
 
 # --- slave ---
-rtl/slave/axi_addr_decode.v
-rtl/slave/axi_wr_fsm.v
-rtl/slave/axi_rd_fsm.v
-rtl/slave/axi_wstrb_merge.v
-rtl/slave/axi_resp_gen.v
-rtl/slave/axi_regmap.v
-rtl/slave/axi4_slave_top.v
+rtl/Slave/axi_addr_decode.v
+rtl/Slave/axi_wr_fsm.v
+rtl/Slave/axi_rd_fsm.v
+rtl/Slave/axi_wstrb_merge.v
+rtl/Slave/axi_resp_gen.v
+rtl/Slave/axi_regmap.v
+rtl/Slave/axi4_slave_top.v
 
 # --- master ---
-rtl/master/axi_master_pending_fifo.v
-rtl/master/axi_master_cmd_fsm.v
-rtl/master/axi_master_wr_fsm.v
-rtl/master/axi_master_rd_fsm.v
-rtl/master/axi_master_resp_check.v
-rtl/master/axi4_master_top.v
+rtl/Master/axi_master_pending_fifo.v
+rtl/Master/axi_master_cmd_fsm.v
+rtl/Master/axi_master_wr_fsm.v
+rtl/Master/axi_master_rd_fsm.v
+rtl/Master/axi_master_resp_check.v
+rtl/Master/axi4_master_top.v
 # --- interconnect ---
 rtl/interconnect/axi_ic_addr_map.v
 rtl/interconnect/axi_ic_arbiter.v

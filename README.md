@@ -1,4 +1,8 @@
 # VLSI & RTL Design Portfolio — Debjit Das
+
+[![regression](https://github.com/debjitdas-ece/vlsi-rtl-projects/actions/workflows/regression.yml/badge.svg)](https://github.com/debjitdas-ece/vlsi-rtl-projects/actions/workflows/regression.yml)
+[![capstone](https://github.com/debjitdas-ece/vlsi-rtl-projects/actions/workflows/riscv-soc-capstone-ci.yml/badge.svg)](https://github.com/debjitdas-ece/vlsi-rtl-projects/actions/workflows/riscv-soc-capstone-ci.yml)
+
 ECE @ JGEC · Samsung ISWDP @ IISc (3 Levels)
 Verilog · SystemVerilog · GTKWave · iVerilog · OpenLANE · EDAPlayground
 Daily GitHub push habit maintained — Jun to Aug 2026
