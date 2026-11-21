@@ -1,9 +1,16 @@
 .RECIPEPREFIX = >
-SRCS = Baud_rate.v Uart_tx.v Uart_rx.v fifo_sync.v uart_core.v uart_top.v
+SRCS   = Baud_rate.v Uart_tx.v Uart_rx.v fifo_sync.v uart_core.v uart_top.v
+LEGACY = Baud_rate.v Uart_tx.v Uart_rx.v
+LEGACY_TOP := $(shell grep -m1 -oE '^module +[A-Za-z0-9_]+' Uart_tb.v | awk '{print $$2}')
 PASS = TOTAL: [0-9]+ PASS +0 FAIL
-.PHONY: test test_core test_top lint clean
+.PHONY: test test_legacy test_core test_top lint clean
 
-test: test_core test_top
+test: test_legacy test_core test_top
+
+test_legacy:
+> iverilog -g2012 -s $(LEGACY_TOP) -o sim_legacy.vvp $(LEGACY) Uart_tb.v
+> vvp sim_legacy.vvp | tee sim_legacy.log
+> grep -Eaq '$(PASS)' sim_legacy.log
 
 test_core:
 > iverilog -g2012 -s tb_uart_core -o sim_core.vvp $(SRCS) tb_uart_core.v
