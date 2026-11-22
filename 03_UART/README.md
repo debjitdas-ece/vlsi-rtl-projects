@@ -10,6 +10,7 @@ verified with Icarus Verilog + GTKWave (no physical FPGA target required).
 ## Table of Contents
 
 - [Overview](#overview)
+- [Block Diagram](#block-diagram)
 - [File Structure](#file-structure)
 - [Module Descriptions](#module-descriptions)
 - [Configurability](#configurability)
@@ -33,6 +34,29 @@ software to reconfigure the same hardware on the fly.
 
 The receiver uses **16× oversampling with a 3-tap majority-vote** instead of single-point
 center sampling, making it resilient to single-sample noise glitches.
+
+---
+
+## Block Diagram
+
+```mermaid
+flowchart LR
+    APB["APB3 master"] <--> TOP
+    subgraph TOP["uart_top: APB3 registers (CTRL, STATUS, TXDATA, RXDATA)"]
+        subgraph CORE["uart_core"]
+            TXF["TX FIFO<br/>fifo_sync"] --> TX["Uart_tx"]
+            RX["Uart_rx"] --> RXF["RX FIFO<br/>fifo_sync"]
+            BAUD["Baud_rate"] -.->|tx_tick| TX
+            BAUD -.->|rx_tick| RX
+        end
+    end
+    TX --> TXL["tx_line"]
+    RXL["rx_line"] --> RX
+    CTS["cts_n"] --> CORE
+    CORE --> RTS["rts_n"]
+```
+
+`Uart_tx` / `Uart_rx` / `Baud_rate` are the original Tx/Rx layer (286-check testbench); `uart_core` adds the FIFOs and flow-control pins; `uart_top` adds the APB3 register interface.
 
 ---
 
@@ -123,6 +147,68 @@ At tick 15:
 ```
 
 This rejects any single-sample glitch in the oversampled window without adding latency.
+
+---
+
+### `fifo_sync` — Synchronous FIFO
+
+```
+Params  : WIDTH (8), DEPTH (16), ALMOST_FULL_THRESH (2), ALMOST_EMPTY_THRESH (2)
+Inputs  : clk, rst, wr_en, rd_en, wr_data[WIDTH-1:0]
+Outputs : rd_data[WIDTH-1:0], full, empty, almost_full, almost_empty, count
+```
+
+Single-clock FIFO used on both the TX and RX paths. `count` reports occupancy.
+
+---
+
+### `uart_core` — Tx/Rx + FIFOs + Flow Control
+
+```
+Params  : FIFO_DEPTH (16)
+Inputs  : clk, rst, dbit[3:0], sp_t, p_en, psel      (same runtime configuration as the bare Tx/Rx)
+          tx_wr_en, tx_wr_data[7:0]                  (push a byte into the TX FIFO)
+          rx_rd_en                                   (pop a byte from the RX FIFO)
+          rx_line, cts_n
+Outputs : tx_line, rts_n, rx_rd_data[7:0]
+          tx_full, tx_empty, rx_empty, rx_full
+          rx_overrun_err, frame_err, parity_err
+```
+
+Wraps the baud generator, `Uart_tx` and `Uart_rx` with a TX FIFO and an RX FIFO, which removes
+the polling requirement of the bare pair: software pushes bytes with `tx_wr_en` and pops
+received bytes with `rx_rd_en`. `tb_uart_core` (44 checks) covers:
+
+- byte order through the FIFOs (a single byte, a 5-byte sequence and a full 16-byte drain)
+- `tx_full` at 16 entries, and a push into a full FIFO being dropped without corrupting the stream
+- `rx_full`, and `rts_n` asserting at 14 of 16 entries
+- `rx_overrun_err` when the RX FIFO overflows, with the 16 buffered bytes still read out in order
+- no parity error on a clean frame
+
+---
+
+### `uart_top` — APB3 Register Wrapper
+
+```
+Params  : FIFO_DEPTH (16)
+Inputs  : PCLK, PRESETn, PSEL, PENABLE, PWRITE, PADDR[7:0], PWDATA[31:0], rx_line, cts_n
+Outputs : PRDATA[31:0], PREADY, tx_line, rts_n
+```
+
+Zero-wait-state APB3 slave (`PREADY` tied high) around `uart_core`.
+
+| Offset | Register | Access | Fields |
+|--------|----------|--------|--------|
+| 0x00 | CTRL | R/W | [0] EN, [1] PARITY_EN, [2] PARITY_ODD, [3] TWO_STOP_BITS, [7:4] DBIT |
+| 0x04 | STATUS | RO | [0] TX_EMPTY, [1] TX_FULL, [2] RX_EMPTY, [3] RX_FULL, [4] FRAME_ERR, [5] PARITY_ERR, [6] OVERRUN_ERR |
+| 0x0C | TXDATA | WO | [7:0]: a write pushes a byte into the TX FIFO |
+| 0x10 | RXDATA | RO | [7:0]: a read pops a byte from the RX FIFO |
+
+Design decision: `CTRL.EN` gates `uart_core` through its reset input. While EN=0 the FIFOs stay
+empty and both FSMs sit in IDLE, matching how a real peripheral's enable bit behaves; software must
+set EN before `TXDATA` / `RXDATA` do anything. The baud rate is still compile-time only, so there
+is no `BAUD_DIV` register. `tb_uart_top` (11 checks) covers CTRL readback, STATUS flags, received-byte
+arrival, a 5-byte burst and `TX_FULL` / `RX_EMPTY` via the STATUS register.
 
 ---
 
@@ -308,17 +394,16 @@ production UART controller would require them.
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| TX/RX FIFO | Deferred | Caller must poll `idle` before `sr`; read `q` before next `rx_done` |
-| Flow control (RTS/CTS) | Deferred | No handshaking pins |
-| Top-level register-mapped wrapper (`uart_top.v`) | Deferred | No AXI-Lite or APB bus interface |
-| SystemVerilog constrained-random testbench | Future | Current TB is directed; SV TB is Layer 6 in the roadmap |
+| TX/RX FIFO | Done (`uart_core`, `fifo_sync`) | 16-deep with full/empty/almost flags; the bare `Uart_tx` / `Uart_rx` pair still needs polling |
+| Flow control | Done (`uart_core`) | `rts_n` output and `cts_n` input |
+| APB3 register wrapper | Done (`uart_top`) | Zero-wait-state APB3 slave; an AXI4-Lite wrapper is not built |
+| Runtime baud-rate divider | Deferred | Baud rate is compile-time only; no `BAUD_DIV` register |
+| UVM environment, coverage and SVA | Planned | The current testbenches are directed |
 
 ---
 
 ## What's Next
 
-- **Layer 4 — TX/RX FIFO:** 16-deep synchronous FIFO with full/empty flags; connects
-  to TX and RX to remove the polling requirement
-- **Layer 5 — `uart_top.v`:** Memory-mapped register file wrapping all four modules
-  behind a standardized bus interface (AXI4-Lite or simple APB)
-- **Project #3 — SPI Master** (Mode 0 + Mode 3)
+- **UVM environment:** interface, driver, monitor, scoreboard and reference model, with functional coverage (baud, data width, parity, error injection)
+- **SVA bind modules:** FIFO full/empty invariants and the APB3 handshake
+- **Runtime baud divider:** a `BAUD_DIV` register driving a runtime divider in `Baud_rate.v`
