@@ -13,6 +13,27 @@ A complete AMBA AXI4 interconnect system written in pure **Verilog-2001** (no Sy
 - Address decode and response generation on the slave side
 - Write-strobe merging for partial-word writes
 
+## Block Diagram
+
+```mermaid
+flowchart LR
+    subgraph SYS["axi4_system_top"]
+        M0["axi4_master_top 0<br/>cmd / wr / rd FSMs, pending FIFO,<br/>id_tracker (depth 4), resp_check"]
+        M1["axi4_master_top 1<br/>(same)"]
+        IC["axi4_interconnect_top<br/>round-robin arbiter, addr_map,<br/>read and write muxes"]
+        S0["axi4_slave_top 0<br/>addr_decode, wr / rd FSMs, regmap,<br/>wstrb_merge, resp_gen"]
+        S1["axi4_slave_top 1<br/>(same)"]
+    end
+    M0 <-->|"AXI4"| IC
+    M1 <-->|"AXI4"| IC
+    IC <-->|"AXI4"| S0
+    IC <-->|"AXI4"| S1
+```
+
+Block contents are taken from the Module Overview table below.
+
+---
+
 ## Module Overview
 
 | Module | Role |

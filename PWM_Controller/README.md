@@ -34,6 +34,34 @@ pwm_apb_wrapper                          (APB3 slave, params: P_S, N, SAFE_STATE
 
 Full signal-level walkthrough and generate-block instance naming: [`docs/MODULE_HIERARCHY.md`](docs/MODULE_HIERARCHY.md).
 
+## Block Diagram
+
+```mermaid
+flowchart LR
+    APB["APB3 master"] <--> W["pwm_apb_wrapper<br/>register map + LOCK"]
+    W --> TOP
+    subgraph TOP["pwm_top"]
+        PS["pwm_prescaler"] -->|tick| CNT["pwm_updown_counter<br/>edge or center aligned"]
+        TV["pwm_dbuf<br/>TOP_VAL"] --> CNT
+        DB["pwm_dbuf x N<br/>duty"] --> CMP["pwm_compare x N"]
+        CNT -->|count| CMP
+        CMP --> DT["pwm_deadtime x N<br/>high / low side pair"]
+        DT --> TRIP["pwm_trip<br/>trip gating to safe state"]
+        CNT --> ADC["pwm_adc x2<br/>trigger A and B"]
+        CNT -.->|"z_f: commit shadow values"| TV
+        CNT -.->|z_f| DB
+    end
+    TRIP --> OUT["pwm_out[2N-1:0]"]
+    ADC --> TRG["adc_trig_a, adc_trig_b"]
+    FLT["trip input, soft_trip"] --> TRIP
+    SYNC["sync_in, sync_en, phase_offset"] --> CNT
+    CNT --> SO["sync_out"]
+```
+
+The same hierarchy as the Architecture tree above, drawn as a data-flow diagram. `z_f` is the counter-trough marker at which the double-buffered `TOP_VAL` and duty registers commit.
+
+---
+
 ## Register Map (`pwm_apb_wrapper.v`)
 
 | Offset | Register     | Bits                                              |
