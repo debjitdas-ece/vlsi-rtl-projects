@@ -163,6 +163,9 @@ module tb_spi_master_core;
         end
     end
 
+    integer bd_cnt = 0;
+    always @(posedge clk) if (burst_done) bd_cnt <= bd_cnt + 1;
+
     time    edge_t[0:63];
     integer edge_n;
     always @(posedge sclk or negedge sclk) begin
@@ -206,6 +209,7 @@ module tb_spi_master_core;
             word_q[2] = 16'h0033; word_q[3] = 16'h0044;
 
             edge_n = 0;
+            bd_cnt = 0;
             wait_idle;
             @(posedge clk);
             tx_data <= word_q[0];
@@ -239,7 +243,7 @@ module tb_spi_master_core;
             end
 
             wait_idle;
-            pf(1'b1, "G2 burst_done reached idle cleanly");
+            pf(bd_cnt == 1 && !busy, "G2 burst_done pulsed once, then idle");
 
             // SCLK continuity: every inter-edge gap must equal N system clocks,
             // including the boundary between words - this is what would break

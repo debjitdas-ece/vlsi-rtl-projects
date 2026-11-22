@@ -154,7 +154,7 @@ checks exactly that.
 | Group | Checks | Coverage |
 |-------|--------|----------|
 | G1 | 1 | Cycle-by-cycle diff against the frozen `spi_master`, 4 modes × 4 bytes |
-| G2 | 28 | 4-word burst in each of the 4 modes, 7 checks per mode: full 16-bit `rx_data` for each of the 4 words, SS held low across the burst, uniform SCLK spacing across word boundaries, and a "reached idle" check that is currently a placeholder that always passes |
+| G2 | 28 | 4-word burst in each of the 4 modes, 7 checks per mode: full 16-bit `rx_data` for each of the 4 words, SS held low across the burst, uniform SCLK spacing across word boundaries, and that `burst_done` pulses exactly once per burst with the master idle afterwards |
 | G3 | 8 | One-hot `ss_n` decode for all 8 select values |
 | G4 | 2 | 12-bit word using a second, 16-bit slave BFM: transfer completes; `rx_data` equals the slave's top 12 bits with clean upper bits |
 
