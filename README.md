@@ -20,6 +20,7 @@ This repository tracks my complete VLSI and RTL design journey — from HDLBits 
 | 4 | Multi-Channel PWM IP Core (APB3, dead-time, trip protection, ASIC-targeted) | Verilog, iVerilog, GTKWave | Jun 23–Jul 7 | ✅ Complete |
 | 5 | AMBA AXI4 Full System (2 master / 2 slave interconnect, round-robin arbitration, depth-4 outstanding tx) | Verilog-2001, iVerilog, GTKWave | Jul 2026 | ✅ Complete |
 | 6 | RISC-V SoC Capstone (PicoRV32, AXI4-Lite bus, PWM IP, RTL→GDS with LibreLane/sky130) | Verilog, Verilator, iVerilog, Yosys, LibreLane | Oct 2026 | ✅ Simulation + RTL→GDS flow complete (16 ns); limitations documented |
+| 7 |	FIFO, CDC & RDC (sync + async Gray-pointer FIFO, 2FF / pulse / handshake / reset synchronizers, CDC bug gallery, SVA)	Verilog, SystemVerilog assertions, iVerilog, Verilator	Nov 2026	✅ Complete (18/18 regression checks) |
 
 ## 📁 Repo Structure
 ```
@@ -117,6 +118,10 @@ vlsi-rtl-projects/
 │   ├── docs/  (PPA.md, coverage.md, physical/)
 │   └── README.md
 │
+├── 05_FIFO_CDC_RDC/             ← Sync + async FIFO, CDC synchronizers, bug gallery, SVA bind files; 18/18 regression checks ✅
+│   ├── rtl/  tb/  sva/  cdc_bugs/  scripts/
+│   ├── Makefile
+│   └── README.md
 ├── .gitattributes               ← Forces GitHub to recognize .v as Verilog
 ├── .gitignore                   ← Excludes sim build artifacts (*.out, *.vcd, *.vvp, *.o)
 └── README.md
