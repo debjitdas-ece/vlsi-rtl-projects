@@ -11,11 +11,13 @@ Designed and simulated with Icarus Verilog + GTKWave.
 ## Table of Contents
 
 - [Overview](#overview)
+- [Block Diagram](#block-diagram)
 - [File Structure](#file-structure)
 - [Module Descriptions](#module-descriptions)
 - [Configurability](#configurability)
 - [Architecture & Key Design Decisions](#architecture--key-design-decisions)
 - [Verification — All Checks Passing](#verification--all-checks-passing)
+- [Results — All Testbenches](#results--all-testbenches)
 - [How to Run](#how-to-run)
 - [Waveform Guide](#waveform-guide)
 - [Known Scope / Deliberately Deferred](#known-scope--deliberately-deferred)
@@ -36,6 +38,30 @@ only after the last edge — matching real peripheral timing requirements.
 
 ---
 
+## Block Diagram
+
+```mermaid
+flowchart LR
+    CTRL["Controller<br/>start, tx_data, cpol, cpha,<br/>width_m1, burst_len, ss_sel"] --> M["spi_master_core<br/>FSM + TX/RX shift registers"]
+    M -->|"sclk, mosi, ss_n[7:0]"| S["SPI slave(s)"]
+    S -->|miso| M
+    M -->|"rx_data, busy, done,<br/>burst_done, tx_load"| CTRL
+```
+
+```mermaid
+stateDiagram-v2
+    [*] --> IDLE
+    IDLE --> SETUP: start
+    SETUP --> XFER: SETUP_CYCLES elapsed
+    XFER --> XFER: word done, more words (tx_load)
+    XFER --> HOLD: last word done
+    HOLD --> IDLE: HOLD_CYCLES elapsed
+```
+
+`spi_master` has the same FSM without the `XFER → XFER` loop (one word per SS assertion).
+
+---
+
 ## File Structure
 
 ```
@@ -43,8 +69,11 @@ only after the last edge — matching real peripheral timing requirements.
 ├── spi_master.v      — SPI master RTL: IDLE → SETUP → XFER → HOLD FSM
 ├── spi_slave.v       — Behavioral slave BFM (Bus Functional Model) for verification
 ├── spi_tb.v          — Self-checking testbench: all 4 modes × 6 patterns + edge cases
-├── spi_tb.vcd        — GTKWave waveform dump from full regression run
-└── README.md         — This file
+├── spi_master_core.v     — Burst / multi-SS / variable-width evolution of spi_master
+├── spi_slave_bfm_burst.v — Slave BFM that reloads its TX register at word boundaries
+├── tb_spi_master_core.v  — Testbench for spi_master_core (39 checks)
+├── Makefile              — `make test` runs both testbenches (this is what CI runs)
+└── README.md             — This file
 ```
 
 ---
@@ -94,6 +123,40 @@ cycle when a full byte has been received.
 
 The BFM resets its shift register and bit counter on every `negedge ss`, which is
 how real SPI peripherals behave.
+
+---
+
+### `spi_master_core` — Burst / Multi-SS / Variable-Width Master
+
+```
+Parameters : CLK_F, SPI_F, SETUP_CYCLES, HOLD_CYCLES, MAX_WIDTH (16), MAX_SS (8)
+Inputs     : clk, rst, start, tx_data[15:0], cpol, cpha,
+             width_m1[3:0]  (word width minus 1; 7 = legacy 8-bit),
+             burst_len[7:0] (words per transfer; 1 = legacy single word),
+             ss_sel[2:0], miso
+Outputs    : mosi, sclk, ss_n[7:0] (one-hot, active low), rx_data[15:0],
+             busy, done (once per word), burst_done (once per burst), tx_load
+```
+
+This is a new module rather than a wrapper, because continuous-SS burst mode changes the
+XFER → HOLD transition and the SS timing inside the FSM itself. `spi_master.v` is left untouched,
+so its 531-check regression stays a valid frozen reference. With `burst_len = 1` and
+`width_m1 = 7` the core is meant to be cycle-identical to `spi_master`, and the first test group
+checks exactly that.
+
+- **Burst:** SS stays asserted across all words; `tx_load` pulses when the next word's `tx_data` must be valid.
+- **Multi-SS:** `ss_sel` selects one of 8 one-hot active-low `ss_n` lines.
+- **Variable width:** `width_m1` sets the word length from 1 to 16 bits; `rx_data` is right-justified.
+- **CPHA = 1 corner case:** the final sample of a word and the next-word reload land on the same cycle, so RX capture and bit-counter reset must be able to fire together.
+
+`spi_slave_bfm_burst.v` is a copy of `spi_slave.v` that also reloads its TX register at the last edge of each word. The original BFM only reloads when SS falls, so it would send zeros after the first word of a burst. `spi_slave.v` itself is unchanged because `spi_tb.v` depends on it.
+
+| Group | Checks | Coverage |
+|-------|--------|----------|
+| G1 | 1 | Cycle-by-cycle diff against the frozen `spi_master`, 4 modes × 4 bytes |
+| G2 | 28 | 4-word burst in each of the 4 modes, 7 checks per mode: full 16-bit `rx_data` for each of the 4 words, SS held low across the burst, uniform SCLK spacing across word boundaries, and a "reached idle" check that is currently a placeholder that always passes |
+| G3 | 8 | One-hot `ss_n` decode for all 8 select values |
+| G4 | 2 | 12-bit word using a second, 16-bit slave BFM: transfer completes; `rx_data` equals the slave's top 12 bits with clean upper bits |
 
 ---
 
@@ -199,7 +262,7 @@ the master returns to IDLE. The testbench explicitly checks `rx_data` on the
 ## Verification — All Checks Passing
 
 ```
-SPI master regression: N checks, 0 failed
+SPI master regression: 531 checks, 0 failed
 RESULT: PASS
 ```
 
@@ -217,11 +280,30 @@ RESULT: PASS
 
 ---
 
+## Results — All Testbenches
+
+| Testbench | Checks | Result |
+|---|---|---|
+| `spi_tb` (frozen `spi_master`) | 531 | 531 pass, 0 fail |
+| `tb_spi_master_core` (burst, multi-SS, variable width) | 39 | 39 pass, 0 fail |
+
+Reproduce: `make -C 04_SPI test`
+
+### Bug found during verification
+
+A strict full-width `rx_data` comparison in the burst test exposed stale upper bits: `rx_shift` was not cleared after a word was captured, so word 2 of a burst read back as `0x55aa` instead of `0xaa`. The fix clears `rx_shift` at the final sample of each word. The testbench's differential check against the frozen `spi_master` confirms single-word behaviour is unchanged.
+
+---
+
 ## How to Run
 
 Requires: [Icarus Verilog](https://bleyer.org/icarus/) and optionally [GTKWave](https://gtkwave.sourceforge.net/).
 
 ```bash
+# Both testbenches (what CI runs)
+make test
+
+# Single-word master only
 # Compile
 iverilog -g2012 -o sim_spi spi_master.v spi_slave.v spi_tb.v
 
@@ -236,7 +318,7 @@ Expected final output:
 
 ```
 ========================================
- SPI master regression: N checks, 0 failed
+ SPI master regression: 531 checks, 0 failed
  RESULT: PASS
 ========================================
 ```
@@ -248,7 +330,7 @@ Expected final output:
 
 ## Waveform Guide
 
-Load `spi_tb.vcd` in GTKWave. Suggested signal groups:
+Run the simulation to generate `spi_tb.vcd` (git-ignored, not stored in the repo), then load it in GTKWave. Suggested signal groups:
 
 **Control**
 ```
@@ -282,9 +364,9 @@ edges with MOSI/MISO toggling → HOLD gap → SS release → `done` pulse.
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Multi-byte burst (continuous SS) | Deferred | Current design is one byte per SS assertion |
-| Multiple slave selects (SS[N:0]) | Deferred | Single SS output only |
-| Variable data width (< 8 or > 8 bit) | Deferred | Fixed at 8 bits |
+| Multi-byte burst (continuous SS) | Done in `spi_master_core` | `spi_master` itself stays single-byte (frozen reference) |
+| Multiple slave selects | Done in `spi_master_core` | 8 one-hot active-low `ss_n` lines |
+| Variable data width | Done in `spi_master_core` | 1 to 16 bits via `width_m1` |
 | AXI4-Lite / APB register wrapper | Future | Planned for top-level integration layer |
 | SystemVerilog constrained-random TB | Future | Directed TB only; SV TB in roadmap |
 
@@ -292,20 +374,5 @@ edges with MOSI/MISO toggling → HOLD gap → SS release → `done` pulse.
 
 ## What's Next
 
-- **Project #4 — FPGA PWM Controller:** Multi-channel digital PWM with
-  configurable frequency and duty cycle, targeting FPGA implementation
-- **Project #5 — AXI4-Lite Slave:** Bus interface wrapper for the UART and
-  SPI cores developed in this portfolio
-
-## Results
-
-| Testbench | Checks | Result |
-|---|---|---|
-| `spi_tb` (frozen `spi_master`) | 531 | 531 pass, 0 fail |
-| `tb_spi_master_core` (burst, multi-SS, variable width) | 39 | 39 pass, 0 fail |
-
-Reproduce: `make -C 04_SPI test`
-
-### Bug found during verification
-
-A strict full-width `rx_data` comparison in the burst test exposed stale upper bits: `rx_shift` was not cleared after a word was captured, so word 2 of a burst read back as `0x55aa` instead of `0xaa`. The fix clears `rx_shift` at the final sample of each word. The testbench's differential check against the frozen `spi_master` confirms single-word behaviour is unchanged.
+- **UVM environment** for `spi_master_core`: all four modes, burst, multiple slave selects and variable width, with functional coverage
+- **SVA bind modules** for `ss_n` / `sclk` timing and the `tx_load` handshake
