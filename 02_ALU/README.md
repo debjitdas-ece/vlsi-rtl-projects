@@ -34,6 +34,29 @@ Verified with a self-checking testbench — **67/67 tests pass**.
 
 ---
 
+## Block Diagram
+
+```mermaid
+flowchart LR
+    A["a[7:0]"] --> ALU
+    B["b[7:0]"] --> ALU
+    OP["op[4:0]"] --> ALU
+    CLK["clk, rst"] --> ALU
+    subgraph ALU["alu"]
+        SEL["Operation select<br/>arithmetic, logic, shift,<br/>rotate, comparison"] --> RES["Result logic<br/>combinational"]
+        SEL --> FL["Flag logic<br/>z, c, o, n, p"]
+        CR["c_reg<br/>carry latch for RLC / RRC"] --> SEL
+        FL --> FR["Flag registers<br/>1-cycle latency"]
+        FL --> CR
+    end
+    RES --> RO["res[7:0]"]
+    FR --> FO["z, c, o, n, p"]
+```
+
+`res` is combinational; the five flags are registered. Drawn from the port list and Design Notes below.
+
+---
+
 ## Port Description
 
 | Port | Width | Direction | Description              |
@@ -65,17 +88,10 @@ iverilog -o sim alu.v alu_tb.v
 ./sim
 ```
 
-### Result
-RESULTS: 67 passed,  0 failed  /  67 total
-
-*** ALL TESTS PASSED ***
-
----
 ## Design Notes
 - `res` is **combinational** (zero latency); flags `z,c,o,n,p` are **registered** (1-cycle latency).
 - `c_reg` internally latches the carry bit each clock, enabling correct RLC/RRC chained behavior.
 - Signed overflow detection: ADD checks same-sign inputs producing opposite-sign output; SUB checks different-sign inputs producing opposite-sign output.
-```
 
 ## Results
 
@@ -84,3 +100,10 @@ RESULTS: 67 passed,  0 failed  /  67 total
 | `alu_tb` | 67 | 67 pass, 0 fail |
 
 Reproduce: `make -C 02_ALU test`
+
+Expected final lines:
+
+```
+RESULTS: 67 passed,  0 failed  /  67 total
+*** ALL TESTS PASSED ***
+```
