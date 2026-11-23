@@ -6,3 +6,4 @@ One page per project: what was built, three design decisions, one bug and how it
 |---|---|
 | UART | [uart.md](uart.md) |
 | SPI master | [spi.md](spi.md) |
+| FIFO, CDC & RDC | [fifo_cdc.md](fifo_cdc.md) |
